@@ -1,0 +1,27 @@
+name: build index
+
+on:
+  push:
+    branches: [main]
+    paths: ['widgets/**', 'scripts/**']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/build-index.mjs
+      - name: Commit the generated index
+        run: |
+          git config user.name 'perch-widgets-ci'
+          git config user.email 'actions@users.noreply.github.com'
+          git add index.json README.md
+          git diff --cached --quiet || git commit -m 'Regenerate index'
+          git push

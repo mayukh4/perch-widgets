@@ -1,0 +1,31 @@
+name: weekly health check
+
+on:
+  schedule:
+    - cron: '17 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sweep:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/health-check.mjs && node scripts/build-index.mjs
+      - uses: peter-evans/create-pull-request@v7
+        with:
+          title: 'Health check: prune and re-mark listings'
+          commit-message: 'Weekly health check'
+          branch: ci/health-check
+          body: >-
+            Automated weekly sweep — repos that vanished or archived move to
+            removed.json, and listings quiet for 18 months are marked stale.
+            A human merges this; nothing is removed without this diff.

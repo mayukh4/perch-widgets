@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/mayukh4/perch-widgets/main/schema/widget.schema.json",
+  "title": "Perch widget registry entry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "name", "description", "author", "repo", "tag", "category", "perchMinVersion", "license", "screenshot"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{1,38}[a-z0-9]$",
+      "description": "Lowercase, digits, hyphens. Must equal the filename and the widget folder's manifest id."
+    },
+    "name": { "type": "string", "minLength": 2, "maxLength": 40 },
+    "description": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 140,
+      "description": "One sentence. What it shows, at a glance."
+    },
+    "author": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9](?:[A-Za-z0-9]|-(?=[A-Za-z0-9])){0,38}$",
+      "description": "GitHub username. The PR must come from this account."
+    },
+    "repo": {
+      "type": "string",
+      "pattern": "^https://github\\.com/[^/]+/[^/]+$"
+    },
+    "tag": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "description": "A real release tag in the repo. Installs read this, never main."
+    },
+    "category": {
+      "enum": ["glance", "home", "media", "productivity", "data", "fun"]
+    },
+    "perchMinVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "license": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 40,
+      "description": "SPDX identifier, e.g. MIT, Apache-2.0, GPL-3.0-only."
+    },
+    "screenshot": {
+      "type": "string",
+      "pattern": "^https://",
+      "description": "A raw image URL, ideally pinned to the tag."
+    },
+    "stale": {
+      "type": "boolean",
+      "description": "Set by the weekly health check, not by authors."
+    },
+    "addedAt": {
+      "type": "string",
+      "format": "date",
+      "description": "Set by CI on merge, not by authors."
+    }
+  }
+}
